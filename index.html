@@ -73,25 +73,36 @@
     
     <script>
 
-	 $.backstretch("background.jpg");
+	//from https://html-online.com/articles/get-url-parameters-javascript/
+	function getUrlParam(parameter, defaultvalue){
+	    var urlparameter = defaultvalue;
+	    if(window.location.href.indexOf(parameter) > -1){
+	        urlparameter = getUrlVars()[parameter];
+	        }
+	    return urlparameter;
+	}
+	function getUrlVars() {
+	    var vars = {};
+	    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+	        vars[key] = value;
+	    });
+	    return vars;
+	}
+
+	$.backstretch("background.jpg");		
+	var starting = [];
+	var ending = [];	
 
 	function random(array) {
 	  return Math.floor(Math.random() * array.length)
 	}
 
 	function generate() {
-		  // lifted somewhat from https://glitch.com/~spark-chipmunk
-	
-		  // arrays of metaphors- if a single quote, a apostrophe needed, enter as \'
-	  let metaphor = ['baking a cake', 'a houseplant', 'running a marathon', 'raising a puppy', 'quantum physics', 'visiting an unknown country','the history of porcelain manufacture','the development of New York graffiti styles','the Corn Laws','the Loch Ness monster myth','the CB radio craze of the 70s','the Gargoyles of the Notre Dame','an all you can eat “Around the world” buffet','the growth of interest in vinyl records','a comfortable old coat','knitting','Homers The Iliad','gardening','the ecosystem of a small island','your favourite film','the structure of a typical horror film', 'chasing a cat', 'finding a big stick', 'a local castle', 'real hockey'];
-  
-  	  // arrays of tech- if a single quote, a apostrophe needed, enter as \'
-	  let tech = ['learning analytics', 'VLE', 'blockchain', 'OER', 'MOOCs', 'personalised learning','Artificial Intelligence','open textbooks','automated assessment','MCQs','digital natives','connectivism','blogging','plagiarism detection sites','lecture capture','Flipped Learning','Facebook','academics use of Twitter','open access publishing','mobile learning','learning styles','LMS','e-portfolios','Wikipedia','student-generated content'];
+		
 
-
-	  let options = [`Use ${metaphor[random(metaphor)]} as a metaphor for ${tech[random(tech)]}. `, 
-					 `How is ${metaphor[random(metaphor)]} an analogy for ${tech[random(tech)]}?`, 
-					 `What does ${metaphor[random(metaphor)]} tell us about ${tech[random(tech)]}?`,
+	  let options = [`Use ${starting[random(starting)]} as a metaphor for ${ending[random(ending)]}. `, 
+					 `How is ${starting[random(starting)]} an analogy for ${ending[random(ending)]}?`, 
+					 `What does ${starting[random(starting)]} tell us about ${ending[random(ending)]}?`,
 					]
   
 	  let randomWord = Math.floor(Math.random() * options.length);
@@ -102,7 +113,7 @@
 	}
 	
 	$(document).ready(function(){	
-		generate();
+		getSpreadsheetData();
 		
 		$( "#gimme" ).click(function() {
 			// do it again
@@ -110,6 +121,26 @@
 		});	
 			
 	});//ready
+
+function getSpreadsheetData(){
+		const gid =  getUrlParam('id', '1X4rmxyHZQg03T02o8tH0XhmqZWjwfZBCAh8TLEnrBNA')
+	    const gsUrl = 'https://spreadsheets.google.com/feeds/list/' + gid + '/2/public/values?alt=json';	    
+
+		$.getJSON(gsUrl, function(data) {                      
+		    var entry = data.feed.entry;
+		                      
+		    $(entry).each(function(){		    
+		     starting.push(this.gsx$startingphrase.$t);
+		     ending.push(this.gsx$endingphrase.$t);
+
+		      });
+		      generate();          
+		    });
+		
+	}
+
+
+
 
 	
 	</script>
